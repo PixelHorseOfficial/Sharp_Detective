@@ -182,3 +182,13 @@
     border-right-color: var(--border);
   }
 } */
+html,
+a,
+button,
+input,
+textarea,
+select,
+[role="button"],
+* {
+  cursor: url("/cursors/magnifier.png") 48 48, auto !important;
+}

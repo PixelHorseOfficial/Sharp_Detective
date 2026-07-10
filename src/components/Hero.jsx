@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./Hero.css";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import Loader from "./Loader";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -41,7 +42,7 @@ const SCREEN_CONFIG = [
 const TEXT_BEATS = [
   {
     id: "walk-in",
-    start: 0.3,
+    start: 0.4,
     end: 0.9,
     eyebrow: "Sharp Detectives",
     title: "78 years of experience.",
@@ -777,6 +778,12 @@ export default function Hero() {
 
   return (
     <>
+      {/* Full-screen themed loading overlay — covers the wireframe
+          fallback cube and the flash-prone name plate while the GLB is
+          still fetching/parsing. Fades out once `modelReady` flips true
+          (set in DetectiveModel's onReady callback below). */}
+      <Loader visible={!modelReady} />
+
       <section className="hero" ref={heroRef}>
       <Navbar />
 
@@ -805,7 +812,9 @@ export default function Hero() {
           showing the tiny wireframe fallback cube instead of the real
           model, so there's no opaque geometry yet to hide the text
           behind — without this gate, the full name flashes unobstructed
-          on every fresh page load until the GLB finishes fetching. */}
+          on every fresh page load until the GLB finishes fetching. This
+          is now a secondary safety net on top of the Loader overlay
+          above, which covers the whole hero during that same window. */}
       <div className={`hero__name${modelReady ? " hero__name--visible" : ""}`}>
         <h1 className="hero__name-text">
           CAPT. D.K Giri

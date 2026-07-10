@@ -1,0 +1,191 @@
+/* ---------- Full-screen loading overlay ----------
+   Covers the entire hero (fixed, inset:0) at a z-index above the
+   canvas/name-plate/captions, so the visitor sees this instead of the
+   bare wireframe fallback cube while the GLB is still loading.
+
+   Hidden state fades opacity out, then flips visibility so it stops
+   intercepting clicks/taps and drops out of the accessibility tree —
+   the visibility transition is delayed to happen only after the
+   opacity fade finishes, so the fade itself stays smooth. */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 50% 40%,
+    #16110f 0%,
+    #0a0a0a 65%,
+    #050505 100%
+  );
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s ease, visibility 0s linear 0s;
+}
+
+.loader--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+}
+
+.loader__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+/* ---------- Magnifying glass mark ---------- */
+.loader__mark {
+  width: 88px;
+  height: 88px;
+  animation: loader-sway 3s ease-in-out infinite;
+}
+
+.loader__glass {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.loader__glass-ring {
+  fill: none;
+  stroke: #b21f2d;
+  stroke-width: 4;
+}
+
+.loader__glass-handle {
+  stroke: #b21f2d;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.loader__glass-scan {
+  stroke: rgba(242, 237, 224, 0.85);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transform-origin: 50px 50px;
+  animation: loader-scan 1.6s ease-in-out infinite;
+}
+
+@keyframes loader-sway {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes loader-scan {
+  0%,
+  100% {
+    transform: translateY(-13px);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateY(13px);
+    opacity: 1;
+  }
+}
+
+/* ---------- Wordmark ---------- */
+.loader__title {
+  margin: 4px 0 0;
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: clamp(20px, 4vw, 32px);
+  letter-spacing: 0.25em;
+  color: #f2ede0;
+  text-shadow: 0 0 24px rgba(178, 31, 45, 0.45);
+}
+
+.loader__tagline {
+  margin: 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #b21f2d;
+}
+
+/* ---------- Status line ---------- */
+.loader__status {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin-top: 10px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8a8378;
+}
+
+.loader__dots span {
+  opacity: 0;
+  animation: loader-dot-blink 1.2s infinite;
+}
+
+.loader__dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loader__dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loader-dot-blink {
+  0%,
+  80%,
+  100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+/* ---------- Indeterminate progress bar ---------- */
+.loader__bar {
+  position: relative;
+  width: 180px;
+  height: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.loader__bar-fill {
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #b21f2d, transparent);
+  animation: loader-bar-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes loader-bar-sweep {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader__mark,
+  .loader__glass-scan,
+  .loader__dots span,
+  .loader__bar-fill {
+    animation: none;
+  }
+}

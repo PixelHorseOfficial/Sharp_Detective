@@ -19,6 +19,15 @@ body {
   height: 100vh;
   overflow: hidden;
   background: #0a0a0a; /* fallback while video loads */
+
+  /* Custom magnifying-glass cursor for the whole hero section (canvas,
+     captions, scroll hint all inherit this since none of them set their
+     own `cursor`). Place the image at public/cursors/magnifier.png.
+     The "20 20" hotspot is the pixel offset into the 64x64 image that
+     acts as the actual click point — tuned to sit near the lens center;
+     nudge these two numbers if it feels off in testing. Falls back to
+     the normal arrow if the image fails to load. */
+  cursor: url("/cursors/magnifier.png") 20 20, auto;
 }
 
 /* ---------- Video background ---------- */
