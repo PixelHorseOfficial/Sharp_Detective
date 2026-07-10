@@ -1,0 +1,363 @@
+/* ==========================================================================
+   Sharp Detectives — Navbar
+   Palette: near-black ground, single blood-red "light-shaft" accent,
+   dim stone grey for rest-state text, faint paper-white for the wordmark.
+   ========================================================================== */
+
+:root {
+  --sd-black: #0a0907;
+  --sd-black-soft: #14120e;
+  --sd-stone: #8a8378;
+  --sd-paper: #f2ede0;
+  --sd-gold: #b21f2d;
+  --sd-gold-dim: #6e1620;
+  --sd-shadow: rgba(0, 0, 0, 0.55);
+}
+
+.sd-nav,
+.sd-nav * {
+  box-sizing: border-box;
+}
+
+/* ---------- Header shell ---------- */
+.sd-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 7, 5, 0.92) 0%,
+    rgba(8, 7, 5, 0.78) 70%,
+    rgba(8, 7, 5, 0) 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  border-bottom: 1px solid rgba(178, 31, 45, 0.08);
+}
+
+.sd-nav--scrolled {
+  background: rgba(8, 7, 5, 0.96);
+  border-bottom-color: rgba(178, 31, 45, 0.18);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+}
+
+.sd-nav__inner {
+  width: 1320px;
+  margin: 0 auto;
+  padding: 14px 32px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 28px;
+}
+
+/* ---------- Logo ---------- */
+.sd-nav__logo {
+    
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex-shrink: 0;
+  margin-right: auto;
+}
+
+.sd-nav__mark-img {
+  height: 80px;
+  width: 300px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.sd-nav__wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.sd-nav__wordmark-main {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 0.02em;
+  color: var(--sd-paper);
+  white-space: nowrap;
+}
+
+.sd-nav__wordmark-sub {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sd-gold-dim);
+  margin-top: 4px;
+}
+
+/* ---------- Desktop links ---------- */
+.sd-nav__links {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.sd-nav__link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 16px;
+  text-decoration: none;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sd-stone);
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.sd-nav__link:hover,
+.sd-nav__link:focus-visible {
+  color: var(--sd-paper);
+}
+
+/* the signature element: a thin red light-shaft beams down onto the
+   link on hover/focus, echoing the alley photo's central shaft of light */
+.sd-nav__link-beam {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 1px;
+  height: 0;
+  background: linear-gradient(to bottom, rgba(178, 31, 45, 0) 0%, var(--sd-gold) 100%);
+  transform: translateX(-50%);
+  transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+  pointer-events: none;
+}
+
+.sd-nav__link:hover .sd-nav__link-beam,
+.sd-nav__link:focus-visible .sd-nav__link-beam {
+  height: 22px;
+  box-shadow: 0 0 8px 1px rgba(178, 31, 45, 0.6);
+}
+
+.sd-nav__link-text {
+  position: relative;
+}
+
+.sd-nav__link-text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 1px;
+  background: var(--sd-gold);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0.7;
+}
+
+.sd-nav__link:hover .sd-nav__link-text::after,
+.sd-nav__link:focus-visible .sd-nav__link-text::after {
+  transform: scaleX(1);
+}
+
+.sd-nav__link:focus-visible {
+  outline: 1px solid rgba(178, 31, 45, 0.6);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ---------- CTA ---------- */
+.sd-nav__cta {
+  flex-shrink: 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sd-black);
+  background: linear-gradient(180deg, #d6394a 0%, var(--sd-gold) 100%);
+  padding: 11px 22px;
+  border-radius: 2px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 8px 18px -8px rgba(178, 31, 45, 0.5);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.sd-nav__cta:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 12px 22px -8px rgba(178, 31, 45, 0.65);
+}
+
+.sd-nav__cta:focus-visible {
+  outline: 2px solid var(--sd-paper);
+  outline-offset: 2px;
+}
+
+/* ---------- Mobile toggle ---------- */
+.sd-nav__toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.sd-nav__toggle span {
+  display: block;
+  width: 100%;
+  height: 1.5px;
+  background: var(--sd-paper);
+  transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+}
+
+.sd-nav__toggle.is-active span:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+  background: var(--sd-gold);
+}
+.sd-nav__toggle.is-active span:nth-child(2) {
+  opacity: 0;
+}
+.sd-nav__toggle.is-active span:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+  background: var(--sd-gold);
+}
+
+/* ---------- Mobile menu panel ---------- */
+.sd-nav__mobile {
+  display: none;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 980px) {
+  .sd-nav__links,
+  .sd-nav__cta {
+    display: none;
+  }
+
+  .sd-nav__toggle {
+    display: flex;
+  }
+
+  .sd-nav__inner {
+    padding: 14px 20px;
+  }
+
+  .sd-nav__mark-img {
+    height: 34px;
+    max-width: 110px;
+  }
+
+  .sd-nav__wordmark-sub {
+    display: none;
+  }
+
+  .sd-nav__mobile {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    background: linear-gradient(to bottom, var(--sd-black-soft) 0%, var(--sd-black) 100%);
+    transition: max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    border-top: 1px solid rgba(178, 31, 45, 0.1);
+  }
+
+  .sd-nav__mobile.is-open {
+    max-height: 78vh;
+    overflow-y: auto;
+  }
+
+  .sd-nav__mobile nav {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 24px;
+  }
+
+  .sd-nav__mobile-link {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(138, 131, 120, 0.15);
+    text-decoration: none;
+    font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+    font-size: 19px;
+    color: var(--sd-paper);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .sd-nav__mobile.is-open .sd-nav__mobile-link {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .sd-nav__mobile-link:active {
+    color: var(--sd-gold);
+  }
+
+  .sd-nav__mobile-index {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--sd-gold-dim);
+  }
+
+  .sd-nav__mobile-cta {
+    display: block;
+    margin: 20px 24px 28px;
+    text-align: center;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sd-black);
+    background: linear-gradient(180deg, #d6394a 0%, var(--sd-gold) 100%);
+    padding: 14px 0;
+    border-radius: 2px;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .sd-nav__wordmark-main {
+    font-size: 17px;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .sd-nav,
+  .sd-nav__link-beam,
+  .sd-nav__link-text::after,
+  .sd-nav__cta,
+  .sd-nav__toggle span,
+  .sd-nav__mobile,
+  .sd-nav__mobile-link {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,320 @@
+/* ---------- Global reset ---------- */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0a0a; /* fallback while video loads */
+}
+
+/* ---------- Video background ---------- */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero__bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Moody overlay so text/model stay readable over the footage */
+.hero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 10, 0.55) 0%,
+    rgba(10, 10, 10, 0.25) 40%,
+    rgba(10, 10, 10, 0.65) 100%
+  );
+  pointer-events: none;
+}
+
+/* ---------- Name plate behind the model ----------
+   Sits at the SAME z-index tier as .hero__canvas-wrap. With a tie,
+   later DOM order wins the paint, so the <Canvas> (rendered after this
+   in Hero.jsx, with gl alpha:true) draws on top. Wherever the 3D scene
+   is transparent (most of the frame) the name shows through underneath;
+   wherever the model's geometry is opaque (the detective's head/body)
+   it visually occludes the name — giving the "name behind the head"
+   effect without per-mesh z-index juggling.
+
+   Starts at opacity 0 and only becomes visible once Hero.jsx adds the
+   "hero__name--visible" class (gated on modelReady). Before the real
+   GLB has loaded, Suspense shows a tiny wireframe fallback cube with
+   nothing solid to occlude the text — so on a fresh page load/reload,
+   without this gate the name flashes fully exposed for a moment. */
+.hero__name {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.hero__name--visible {
+  opacity: 1;
+}
+
+.hero__name-text {
+  margin: 0;
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: 150px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255, 251, 251, 0.85);
+  text-shadow: 0 0 40px rgba(0, 0, 0, 0.75), 0 0 90px rgba(0, 0, 0, 0.5);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.hero__name-rank {
+  display: block;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(14px, 1.6vw, 20px);
+  letter-spacing: 0.4em;
+  font-weight: 600;
+  color: rgba(178, 31, 45, 0.9);
+  margin-bottom: 10px;
+}
+
+@media (max-width: 640px) {
+  .hero__name-text {
+    font-size: 50px;
+  }
+}
+
+.hero__canvas-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.hero__canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ---------- Text stage stack ---------- */
+.hero__content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero__stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 24px;
+  will-change: opacity, transform;
+}
+
+.hero__eyebrow {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #6e1620;
+  margin-bottom: 18px;
+}
+
+.hero__title {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: clamp(36px, 6.4vw, 78px);
+  line-height: 1.05;
+  color: #f2ede0;
+  margin: 0;
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+.hero__title-line {
+  display: block;
+}
+
+.hero__subtitle {
+  margin-top: 18px;
+  max-width: 560px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(13px, 1.5vw, 16px);
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  color: #b21f2d;
+}
+
+/* ---------- Scroll hint ---------- */
+.hero__scroll-hint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #8a8378;
+  pointer-events: none;
+}
+
+.hero__scroll-hint-line {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(to bottom, rgba(178, 31, 45, 0.9), rgba(178, 31, 45, 0));
+  animation: hero-hint-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes hero-hint-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleY(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero__title {
+    font-size: clamp(30px, 9vw, 48px);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Scroll-synced captions — append to Hero.css.
+   Opacity/transform are set inline via JS every scroll tick (see
+   Hero.jsx), so these rules only need to define the resting/hidden
+   state, positioning, and typography.
+   ------------------------------------------------------------------ */
+
+.hero__captions {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Desktop: each beat sits on its own side, alternating left/right/
+   left/right, so the caption never competes for space with whatever
+   part of the model (character, tablet, book) is centered on screen
+   at that point in the scroll. Every caption shares the same bottom
+   anchor so they don't jump vertically as they cross-fade. */
+.hero__caption {
+  position: absolute;
+  bottom: 14%;
+  max-width: 460px;
+  opacity: 0;
+  will-change: opacity, transform;
+  transition: none; /* opacity/transform are driven per-frame by JS, not CSS */
+}
+
+.hero__caption:nth-child(odd) {
+  left: 6%;
+  text-align: left;
+}
+
+.hero__caption:nth-child(even) {
+  right: 6%;
+  text-align: right;
+}
+
+.hero__caption:nth-child(even) .hero__caption-subtitle {
+  margin-left: auto;
+}
+
+.hero__caption-eyebrow {
+  display: block;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #e63946;
+  margin-bottom: 14px;
+}
+
+.hero__caption-title {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: clamp(28px, 3.6vw, 46px);
+  line-height: 1.15;
+  color: #f2ede0;
+  margin: 0 0 14px;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+
+.hero__caption-subtitle {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.6;
+  color: #cfcfcf;
+  margin: 0;
+  max-width: 420px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 768px) {
+  /* Alternating sides only makes sense with room to spare either side
+     of the model; on narrow screens every caption collapses back to
+     one centered column so it never overlaps the canvas content. */
+  .hero__caption {
+    left: 5% !important;
+    right: 5% !important;
+    bottom: 20%;
+    max-width: none;
+    text-align: center !important;
+  }
+
+  .hero__caption-subtitle {
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__caption {
+    transition: opacity 0.3s ease;
+  }
+}

@@ -1,0 +1,341 @@
+.site-footer {
+  position: relative;
+  width: 100%;
+  padding: 72px 24px 0;
+  background: #131313;
+  overflow: hidden;
+}
+
+/* Ambient haze — slow continuous drift for atmosphere at rest. */
+.site-footer__fog {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      ellipse at 15% 0%,
+      rgba(178, 31, 45, 0.06) 0%,
+      rgba(10, 10, 10, 0) 50%
+    ),
+    radial-gradient(
+      ellipse at 85% 20%,
+      rgba(178, 31, 45, 0.04) 0%,
+      rgba(10, 10, 10, 0) 55%
+    );
+  background-size: 140% 140%, 140% 140%;
+  background-position: 0 0, 0 0;
+  pointer-events: none;
+  will-change: background-position;
+}
+
+.site-footer__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.3fr 1.3fr 1fr 1.3fr;
+  gap: 48px;
+  padding-bottom: 48px;
+}
+
+/* Brand / contact block */
+.site-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.site-footer__blurb {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  color: #e7e2d6;
+  text-align: center;
+  margin: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.site-footer__contact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.site-footer__contact li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.site-footer__contact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #b21f2d;
+  margin-top: 1px;
+}
+
+.site-footer__contact-value {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #f2ede0;
+}
+
+/* Nav columns */
+.site-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.site-footer__col-heading {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-weight: 800;
+  font-size: 19px;
+  color: #f7f4ea;
+}
+
+.site-footer__col-underline {
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #b21f2d, rgba(178, 31, 45, 0));
+}
+
+.site-footer__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.site-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14.5px;
+  color: #cfcabf;
+  text-decoration: none;
+  letter-spacing: 0.005em;
+  transition: color 0.25s ease;
+  will-change: transform;
+}
+
+.site-footer__link-arrow {
+  flex-shrink: 0;
+  color: #8f8a80;
+  transition: transform 0.3s ease, color 0.25s ease;
+}
+
+.site-footer__link:hover {
+  color: #ffffff;
+}
+
+.site-footer__link:hover .site-footer__link-arrow {
+  color: #b21f2d;
+  transform: translateX(4px);
+}
+
+/* Visitor counter — odometer digits */
+.site-footer__visitor {
+  position: relative;
+  z-index: 1;
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 48px;
+}
+
+.site-footer__visitor-heading {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #b21f2d;
+}
+
+.site-footer__odometer {
+  display: flex;
+  gap: 3px;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 199, 0, 0.25);
+  border-radius: 6px;
+  box-shadow: 0 0 22px rgba(255, 199, 0, 0.08) inset;
+}
+
+.visitor-digit {
+  position: relative;
+  width: 20px;
+  height: 34px;
+  overflow: hidden;
+}
+
+.visitor-digit-strip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.visitor-digit-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  font-family: "DSEG7 Classic", "Courier New", monospace;
+  font-weight: 700;
+  font-size: 24px;
+  color: #ffc700;
+  text-shadow: 0 0 8px rgba(255, 199, 0, 0.55);
+}
+
+/* Divider before the bottom bar, drawn in on scroll */
+.site-footer__divider {
+  position: relative;
+  z-index: 1;
+  max-width: 1320px;
+  margin: 0 auto;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Bottom bar */
+.site-footer__bottom {
+  position: relative;
+  z-index: 1;
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0 26px;
+}
+
+.site-footer__copyright {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  color: #d8d3c7;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+/* Floating action buttons */
+.fab {
+  position: fixed;
+  right: 24px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.fab--call {
+  bottom: 24px;
+  background: #e12030;
+}
+
+.fab--whatsapp {
+  bottom: 88px;
+  background: #25d366;
+}
+
+.fab-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fab--call .fab-ring {
+  background: #e12030;
+}
+
+.fab--whatsapp .fab-ring {
+  background: #25d366;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-footer *,
+  .fab {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 1080px) {
+  .site-footer__inner {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 44px;
+  }
+
+  .site-footer__brand {
+    grid-column: 1 / -1;
+  }
+
+  .site-footer__blurb {
+    text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-footer {
+    padding: 56px 20px 0;
+  }
+
+  .site-footer__inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .visitor-digit {
+    width: 16px;
+    height: 28px;
+  }
+
+  .visitor-digit-cell {
+    height: 28px;
+    font-size: 19px;
+  }
+
+  .fab {
+    width: 46px;
+    height: 46px;
+    right: 16px;
+  }
+
+  .fab--call {
+    bottom: 16px;
+  }
+
+  .fab--whatsapp {
+    bottom: 72px;
+  }
+}
