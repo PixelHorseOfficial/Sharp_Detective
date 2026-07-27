@@ -1,0 +1,524 @@
+/* ------------------------------------------------------------------
+   Achievements — scroll-pinned "evidence board" sequence
+   Cards sit in fixed positions and never move left/right. The section
+   pins in place (position: sticky within a tall wrapper) while the
+   user scrolls; each increment of scroll activates the next card in
+   place (it enlarges + lifts, others stay put). Once the last card
+   has been shown, the sticky content naturally releases and normal
+   page scroll continues into the next section.
+   Matches the noir palette used in Hero (#0a0a0a bg, #b21f2d / #e63946
+   red, Bodoni Moda serif headings).
+   ------------------------------------------------------------------ */
+
+.achv {
+  position: relative;
+  width: 100%;
+  display: flow-root;
+  cursor: url("/cursors/magnifier.png") 20 20, auto;
+}
+
+.achv__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ---------- Background video ---------- */
+.achv__bg {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  margin-bottom: -100vh;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.achv__bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: grayscale(35%) brightness(0.55) contrast(1.1);
+}
+
+.achv__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---------- Intro ---------- */
+.achv__intro {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 6%;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.achv__intro-eyebrow {
+  display: inline-block;
+  font-family: "Courier New", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #e63946;
+  margin-bottom: 12px;
+}
+
+.achv__intro-title {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: clamp(26px, 3.4vw, 40px);
+  color: #f2ede0;
+  margin: 0 0 12px;
+  letter-spacing: 0.01em;
+}
+
+.achv__intro-copy {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #b8b2a5;
+  margin: 0 0 20px;
+}
+
+.achv__stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.achv__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.achv__stat strong {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: 34px;
+  color: #e63946;
+  line-height: 1.1;
+}
+
+.achv__stat span {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a8378;
+  margin-top: 6px;
+}
+
+/* ---------- Scroll-pin wrapper ---------- */
+/* Height is set inline (count * 100vh) — this is the scroll distance
+   over which the pinned stage below cycles through every card. */
+.achv__scrollpin {
+  position: relative;
+  z-index: 1;
+}
+
+.achv__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  overflow: hidden;
+  padding: 24px 0;
+}
+
+/* ---------- Card row (fixed positions — cards never translate) ---------- */
+.achv__track {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: nowrap;
+}
+
+.achv__card {
+  position: relative;
+  flex: 0 0 auto;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transform-origin: bottom center;
+  /* transform itself is set inline every animation frame from the
+     continuous scroll progress (see Achievement.jsx) — this short
+     transition just smooths the ~16ms gaps between frames without
+     introducing the laggy catch-up a longer transition would cause. */
+  transition: transform 0.12s linear;
+  will-change: transform;
+}
+
+.achv__card--wide {
+  width: 380px;
+}
+
+.achv__card--active {
+  z-index: 5;
+  cursor: default;
+}
+
+/* The image itself is what visually "increases in size" — scaling the
+   frame (not the card width) keeps every slot's layout position fixed. */
+.achv__frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: #151210;
+  border-radius: 10px;
+  transform-origin: center bottom;
+  transition: transform 0.12s linear;
+  will-change: transform;
+}
+
+.achv__card--wide .achv__frame {
+  aspect-ratio: 16 / 10;
+}
+
+.achv__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: sepia(28%) contrast(1.08) saturate(0.85) brightness(0.96);
+  transition: filter 0.5s ease;
+}
+
+.achv__card--active .achv__frame img {
+  filter: sepia(8%) contrast(1.1) saturate(1) brightness(1);
+}
+
+/* Focused reveal: caption only becomes visible for the active card.
+   Height is reserved at all times (not collapsed to 0) so activating a
+   card never changes the track's total height — that's what was
+   causing the intro heading above to jerk/re-center on every switch. */
+.achv__caption {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: #f2ede0;
+  text-align: center;
+  max-width: 280px;
+  height: 42px;
+  overflow: hidden;
+  transition: opacity 0.1s linear;
+}
+
+/* ---------- Dots ---------- */
+.achv__dots {
+  display: flex;
+  gap: 10px;
+}
+
+.achv__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(242, 237, 224, 0.4);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.achv__dot--active {
+  background: #e63946;
+  border-color: #e63946;
+  transform: scale(1.2);
+}
+
+/* ---------- Responsive ---------- */
+/* Below 900px there isn't room to lay all 4 cards side by side without
+   overflowing the viewport, so only the active card is rendered — the
+   others are hidden rather than squeezed. This keeps the "evidence
+   board" focus effect (one exhibit enlarged at a time) instead of
+   trying to shrink cards down to an unreadable size. Scrolling still
+   drives which card is active exactly as on desktop. */
+@media (max-width: 900px) {
+  .achv {
+    cursor: auto;
+  }
+
+  .achv__intro {
+    padding: 0 8%;
+  }
+
+  .achv__sticky {
+    gap: 20px;
+    padding: 20px 16px;
+  }
+
+  .achv__track {
+    width: 100%;
+    gap: 0;
+  }
+
+  .achv__card {
+    display: none;
+    width: min(320px, 78vw);
+    transform: none;
+  }
+
+  .achv__card--wide {
+    width: min(320px, 78vw);
+  }
+
+  .achv__card--active {
+    display: flex;
+    transform: none;
+  }
+
+  .achv__card--active .achv__frame {
+    transform: scale(1) rotate(0deg);
+  }
+
+  .achv__card:nth-child(odd) .achv__frame,
+  .achv__card:nth-child(even) .achv__frame {
+    transform: rotate(0deg);
+  }
+
+  .achv__caption {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .achv__stats {
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  .achv__intro-copy {
+    font-size: 13px;
+  }
+
+  .achv__card,
+  .achv__card--wide {
+    width: min(280px, 84vw);
+  }
+
+  .achv__zoom-hint {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+@media (max-width: 400px) {
+  .achv__sticky {
+    gap: 14px;
+    padding: 16px 12px;
+  }
+
+  .achv__card,
+  .achv__card--wide {
+    width: 100%;
+  }
+
+  .achv__caption {
+    font-size: 13px;
+    height: 54px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achv__card,
+  .achv__frame {
+    transition: none;
+  }
+
+  .achv__frame img {
+    transition: none;
+  }
+}
+
+/* ---------- Zoom hint (corner icon on the focused card) ---------- */
+.achv__zoom-hint {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.55);
+  color: #f2ede0;
+  backdrop-filter: blur(3px);
+  transition: opacity 0.1s linear;
+  pointer-events: none;
+}
+
+/* ---------- Lightbox ---------- */
+.achv__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6vh 6vw;
+  background: rgba(8, 7, 6, 0.88);
+  backdrop-filter: blur(6px) saturate(0.9);
+  -webkit-backdrop-filter: blur(6px) saturate(0.9);
+  cursor: zoom-out;
+  animation: achv-lightbox-fade 0.28s ease both;
+}
+
+@keyframes achv-lightbox-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.achv__lightbox-figure {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: min(900px, 88vw);
+  max-height: 88vh;
+  margin: 0;
+  cursor: default;
+  animation: achv-lightbox-pop 0.32s cubic-bezier(0.22, 1.1, 0.36, 1) both;
+}
+
+@keyframes achv-lightbox-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.86) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.achv__lightbox-img {
+  display: block;
+  max-width: 100%;
+  max-height: 76vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(242, 237, 224, 0.08);
+}
+
+.achv__lightbox-caption {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #f2ede0;
+  text-align: center;
+  max-width: 640px;
+}
+
+.achv__lightbox-close {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(242, 237, 224, 0.25);
+  background: rgba(10, 10, 10, 0.6);
+  color: #f2ede0;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.achv__lightbox-close:hover {
+  background: #e63946;
+  border-color: #e63946;
+  transform: scale(1.06);
+}
+
+.achv__lightbox-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(242, 237, 224, 0.2);
+  background: rgba(10, 10, 10, 0.55);
+  color: #f2ede0;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.achv__lightbox-nav:hover {
+  background: #e63946;
+  border-color: #e63946;
+}
+
+.achv__lightbox-nav--prev {
+  left: 24px;
+}
+
+.achv__lightbox-nav--next {
+  right: 24px;
+}
+
+@media (max-width: 640px) {
+  .achv__lightbox-nav {
+    width: 38px;
+    height: 38px;
+  }
+
+  .achv__lightbox-nav--prev {
+    left: 10px;
+  }
+
+  .achv__lightbox-nav--next {
+    right: 10px;
+  }
+
+  .achv__lightbox-close {
+    top: 14px;
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achv__lightbox,
+  .achv__lightbox-figure {
+    animation: none;
+  }
+}

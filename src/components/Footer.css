@@ -10,7 +10,7 @@
 .site-footer__fog {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(
+  /* background-image: radial-gradient(
       ellipse at 15% 0%,
       rgba(178, 31, 45, 0.06) 0%,
       rgba(10, 10, 10, 0) 50%
@@ -19,7 +19,7 @@
       ellipse at 85% 20%,
       rgba(178, 31, 45, 0.04) 0%,
       rgba(10, 10, 10, 0) 55%
-    );
+    ); */
   background-size: 140% 140%, 140% 140%;
   background-position: 0 0, 0 0;
   pointer-events: none;

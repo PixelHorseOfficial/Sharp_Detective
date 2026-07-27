@@ -1,0 +1,453 @@
+/* ------------------------------------------------------------------
+   Testimonials — "witness statement" 3-up sliding carousel.
+   Fully transparent section — the shared sticky video background
+   (from the wrapper in Hero.jsx) shows through everywhere, including
+   through the cards themselves via frosted glass (backdrop-filter),
+   so this reads as part of the same 3D scene rather than a flat block
+   of UI dropped on top of it.
+   ------------------------------------------------------------------ */
+
+.tst {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 110px 6% 120px;
+  cursor: url("/cursors/magnifier.png") 20 20, auto;
+  
+}
+
+/* ---------- Intro ---------- */
+.tst__intro {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+  margin: 0 auto 56px;
+  text-align: center;
+}
+
+.tst__intro-eyebrow {
+  display: inline-block;
+  font-family: "Courier New", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #e63946;
+  margin-bottom: 10px;
+  text-shadow: 0 0 18px rgba(230, 57, 70, 0.5);
+}
+
+.tst__file-no {
+  display: block;
+  font-family: "Courier New", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(242, 237, 224, 0.45);
+  margin-bottom: 18px;
+}
+
+.tst__intro-title {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: clamp(30px, 4vw, 46px);
+  color: #f2ede0;
+  margin: 0 0 18px;
+  letter-spacing: 0.01em;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.75);
+}
+
+.tst__intro-copy {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #d8d2c4;
+  margin: 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+}
+
+/* ---------- Stage: arrows + 3-up track ---------- */
+.tst__stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.tst__arrow {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(230, 57, 70, 0.5);
+  background: rgba(20, 16, 14, 0.25);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #e63946;
+  font-size: 26px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tst__arrow:hover {
+  background: rgba(230, 57, 70, 0.18);
+  transform: scale(1.08);
+  box-shadow: 0 0 24px rgba(230, 57, 70, 0.45);
+}
+
+.tst__viewport {
+  flex: 1 1 auto;
+  overflow: hidden;
+  width: 100%;
+  padding: 24px 0;
+}
+
+.tst__track {
+  display: flex;
+  transition: transform 0.6s ease;
+}
+
+.tst__track--no-transition {
+  transition: none;
+}
+
+.tst__slide {
+  flex: 0 0 calc(100% / 3);
+  box-sizing: border-box;
+  padding: 10px 14px;
+  perspective: 1000px;
+}
+
+.tst__slide .tst__card {
+  transform: scale(0.92);
+  opacity: 0.55;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.tst__slide--center .tst__card {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* ---------- Card: frosted glass, not solid paper ---------- */
+.tst__card {
+  position: relative;
+  height: 100%;
+}
+
+.tst__card-tilt {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 44px 26px 30px;
+
+  /* Frosted glass over whatever's behind it (the shared video) */
+  background: linear-gradient(
+    165deg,
+    rgb(250, 237, 228),
+    rgb(252, 243, 237)
+  );
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  border: 1px solid rgba(242, 237, 224, 0.14);
+  border-left: 2px solid rgba(230, 57, 70, 0.75);
+  border-radius: 4px;
+
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.15s ease-out, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.tst__card-tilt:hover {
+  border-left-color: #e63946;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    0 0 32px rgba(230, 57, 70, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Glare that tracks the pointer via --gx/--gy, set in Reviews.jsx */
+.tst__card-tilt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle 220px at var(--gx, 50%) var(--gy, 0%),
+    rgba(255, 255, 255, 0.14),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.tst__card-tilt:hover::before {
+  opacity: 1;
+}
+
+.tst__pin {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  z-index: 2;
+  background: radial-gradient(circle at 32% 30%, #ff6b6b, #a3181f 60%, #6e1620 100%);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6), 0 0 12px rgba(230, 57, 70, 0.6);
+}
+
+.tst__thread {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(to bottom, rgba(230, 57, 70, 0.8), rgba(230, 57, 70, 0));
+  transform-origin: top center;
+  transform: translateX(-50%) rotate(4deg);
+}
+
+.tst__wit-tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-family: "Courier New", ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(248, 184, 23);
+  border: 1px solid rgba(242, 237, 224, 0.25);
+  padding: 3px 7px;
+  border-radius: 2px;
+}
+
+.tst__case-tag {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(252, 48, 65, 0.85);
+  color: #ffffff;
+  font-family: "Courier New", ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+  box-shadow: 0 0 12px rgba(230, 57, 70, 0.5);
+}
+
+.tst__quote-mark {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: 52px;
+  line-height: 1;
+  color: rgb(230, 57, 71);
+  margin: 10px 0 -6px;
+}
+
+.tst__stars {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 16px;
+}
+
+.tst__star {
+  font-size: 14px;
+  color: rgba(242, 237, 224, 0.2);
+}
+
+.tst__star--filled {
+  color: #ff1c2e;
+  text-shadow: 0 0 8px rgba(255, 37, 55, 0.6);
+}
+
+.tst__quote {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-style: italic;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #030303;
+  margin: 0 0 22px;
+}
+
+.tst__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+}
+
+.tst__name {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #020202;
+}
+
+.tst__city {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fc2b3c;
+}
+
+.tst__stamp-verified {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(33, 131, 33, 0.7);
+  border: 2px solid rgba(33, 131, 33, 0.7);
+  padding: 2px 7px;
+  border-radius: 4px;
+  transform: rotate(-8deg);
+}
+
+/* ---------- Film-strip progress reel (replaces plain dots) ---------- */
+.tst__reel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 38px;
+}
+
+
+
+.tst__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(242, 237, 224, 0.4);
+  background: rgba(10, 9, 8, 0.4);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tst__dot--active {
+  background: #b60211;
+  border-color: #b60211;
+  transform: scale(1.4);
+  box-shadow: 0 0 14px rgba(230, 57, 70, 0.8);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+  .tst__arrow,
+  .tst__reel {
+    display: none;
+  }
+
+  .tst__stage {
+    gap: 0;
+  }
+
+  .tst__viewport {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 4px;
+  }
+
+  .tst__track {
+    transition: none;
+  }
+
+  .tst__slide {
+    flex: 0 0 82%;
+    scroll-snap-align: center;
+    padding: 10px 8px;
+  }
+
+  .tst__slide .tst__card {
+    transform: none;
+    opacity: 1;
+  }
+
+  .tst__card-tilt {
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .tst__intro {
+    margin-bottom: 36px;
+  }
+
+  .tst__intro-copy {
+    font-size: 13.5px;
+  }
+
+  .tst__card-tilt {
+    padding: 36px 20px 26px;
+  }
+
+  .tst__quote {
+    font-size: 14px;
+  }
+
+  .tst__wit-tag,
+  .tst__case-tag {
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tst {
+    padding: 64px 5% 72px;
+  }
+
+  .tst__slide {
+    flex-basis: 92%;
+    padding: 8px 4px;
+  }
+
+  .tst__card-tilt {
+    padding: 32px 18px 22px;
+  }
+
+  .tst__quote-mark {
+    font-size: 44px;
+  }
+
+  .tst__stamp-verified {
+    font-size: 10px;
+    left: 12px;
+    bottom: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tst__track,
+  .tst__slide .tst__card,
+  .tst__card-tilt {
+    transition: none;
+  }
+}

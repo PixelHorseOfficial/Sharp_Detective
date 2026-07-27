@@ -13,70 +13,69 @@ body {
   box-sizing: border-box;
 }
 
-.hero {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background: #0a0a0a; /* fallback while video loads */
-
-  /* Custom magnifying-glass cursor for the whole hero section (canvas,
-     captions, scroll hint all inherit this since none of them set their
-     own `cursor`). Place the image at public/cursors/magnifier.png.
-     The "20 20" hotspot is the pixel offset into the 64x64 image that
-     acts as the actual click point — tuned to sit near the lens center;
-     nudge these two numbers if it feels off in testing. Falls back to
-     the normal arrow if the image fails to load. */
-  cursor: url("/cursors/magnifier.png") 20 20, auto;
-}
-
-/* ---------- Video background ---------- */
-.hero__bg {
-  position: absolute;
+/* ------------------------------------------------------------------
+   Single shared background video for the WHOLE page
+   ------------------------------------------------------------------ */
+.site-bg {
+  position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: -1;
   overflow: hidden;
-  z-index: 0;
+  background: #0a0a0a;
 }
 
-.hero__bg-video {
+.site-bg-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
+  filter: grayscale(35%) brightness(0.55) contrast(1.1);
+  /* Fallback while video loads */
+  background: #0a0a0a;
 }
 
-/* Moody overlay so text/model stay readable over the footage */
-.hero__bg::after {
-  content: "";
+.site-bg-scrim {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
     rgba(10, 10, 10, 0.55) 0%,
     rgba(10, 10, 10, 0.25) 40%,
-    rgba(10, 10, 10, 0.65) 100%
+    rgba(10, 10, 10, 0.5) 100%
   );
   pointer-events: none;
 }
 
-/* ---------- Name plate behind the model ----------
-   Sits at the SAME z-index tier as .hero__canvas-wrap. With a tie,
-   later DOM order wins the paint, so the <Canvas> (rendered after this
-   in Hero.jsx, with gl alpha:true) draws on top. Wherever the 3D scene
-   is transparent (most of the frame) the name shows through underneath;
-   wherever the model's geometry is opaque (the detective's head/body)
-   it visually occludes the name — giving the "name behind the head"
-   effect without per-mesh z-index juggling.
+/* ------------------------------------------------------------------
+   Hero section
+   ------------------------------------------------------------------ */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: transparent;
+  cursor: url("/cursors/magnifier.png") 20 20, auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-   Starts at opacity 0 and only becomes visible once Hero.jsx adds the
-   "hero__name--visible" class (gated on modelReady). Before the real
-   GLB has loaded, Suspense shows a tiny wireframe fallback cube with
-   nothing solid to occlude the text — so on a fresh page load/reload,
-   without this gate the name flashes fully exposed for a moment. */
+/* Fallback for when cursor image doesn't load */
+@supports not (cursor: url("/cursors/magnifier.png") 20 20, auto) {
+  .hero {
+    cursor: auto;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Name plate (behind the model)
+   ------------------------------------------------------------------ */
 .hero__name {
   position: absolute;
   inset: 0;
@@ -96,14 +95,16 @@ body {
 .hero__name-text {
   margin: 0;
   font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
-  font-size: 150px;
+  font-size: clamp(40px, 12vw, 150px);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   text-align: center;
   color: rgba(255, 251, 251, 0.85);
   text-shadow: 0 0 40px rgba(0, 0, 0, 0.75), 0 0 90px rgba(0, 0, 0, 0.5);
   line-height: 1.1;
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 90vw;
+  word-break: break-word;
 }
 
 .hero__name-rank {
@@ -116,78 +117,108 @@ body {
   margin-bottom: 10px;
 }
 
-@media (max-width: 640px) {
-  .hero__name-text {
-    font-size: 50px;
-  }
-}
-
+/* ------------------------------------------------------------------
+   Canvas wrapper (3D model container)
+   ------------------------------------------------------------------ */
 .hero__canvas-wrap {
   position: absolute;
   inset: 0;
   z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero__canvas-wrap canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
 }
 
-/* ---------- Text stage stack ---------- */
-.hero__content {
-  position: relative;
-  z-index: 2;
+/* Fallback while canvas loads */
+.hero__canvas-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: -1;
+}
+
+/* ------------------------------------------------------------------
+   Captions (scroll-synced text)
+   ------------------------------------------------------------------ */
+.hero__captions {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  pointer-events: none;
+  width: 100%;
   height: 100%;
+}
+
+.hero__caption {
+  position: absolute;
+  bottom: 14%;
+  max-width: 460px;
+  opacity: 0;
+  will-change: opacity, transform;
+  transition: none;
   pointer-events: none;
 }
 
-.hero__stage {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0 24px;
-  will-change: opacity, transform;
+/* Left-aligned captions */
+.hero__caption:nth-child(odd) {
+  left: 6%;
+  text-align: left;
 }
 
-.hero__eyebrow {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #6e1620;
-  margin-bottom: 18px;
+/* Right-aligned captions */
+.hero__caption:nth-child(even) {
+  right: 6%;
+  text-align: right;
 }
 
-.hero__title {
-  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
-  font-size: clamp(36px, 6.4vw, 78px);
-  line-height: 1.05;
-  color: #f2ede0;
-  margin: 0;
-  letter-spacing: 0.01em;
-  text-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+.hero__caption:nth-child(even) .hero__caption-subtitle {
+  margin-left: auto;
 }
 
-.hero__title-line {
+.hero__caption-eyebrow {
   display: block;
-}
-
-.hero__subtitle {
-  margin-top: 18px;
-  max-width: 560px;
   font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: clamp(13px, 1.5vw, 16px);
-  letter-spacing: 0.06em;
-  line-height: 1.6;
-  color: #b21f2d;
+  font-size: clamp(11px, 1.2vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #e63946;
+  margin-bottom: 14px;
 }
 
-/* ---------- Scroll hint ---------- */
+.hero__caption-title {
+  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
+  font-size: clamp(28px, 3.6vw, 46px);
+  line-height: 1.15;
+  color: #f2ede0;
+  margin: 0 0 14px;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+
+.hero__caption-subtitle {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.6;
+  color: #cfcfcf;
+  margin: 0;
+  max-width: 420px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ------------------------------------------------------------------
+   Scroll hint
+   ------------------------------------------------------------------ */
 .hero__scroll-hint {
   position: absolute;
   bottom: 28px;
@@ -225,88 +256,25 @@ body {
   }
 }
 
-@media (max-width: 640px) {
-  .hero__title {
-    font-size: clamp(30px, 9vw, 48px);
-  }
+/* ------------------------------------------------------------------
+   Hidden video elements (for screen textures in 3D model)
+   ------------------------------------------------------------------ */
+.hero__screen-video-source {
+  display: none;
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+  height: 0;
 }
 
 /* ------------------------------------------------------------------
-   Scroll-synced captions — append to Hero.css.
-   Opacity/transform are set inline via JS every scroll tick (see
-   Hero.jsx), so these rules only need to define the resting/hidden
-   state, positioning, and typography.
+   Tablet/768px and down (medium screens)
    ------------------------------------------------------------------ */
-
-.hero__captions {
-  position: absolute;
-  z-index: 5;
-  inset: 0;
-  pointer-events: none;
-}
-
-/* Desktop: each beat sits on its own side, alternating left/right/
-   left/right, so the caption never competes for space with whatever
-   part of the model (character, tablet, book) is centered on screen
-   at that point in the scroll. Every caption shares the same bottom
-   anchor so they don't jump vertically as they cross-fade. */
-.hero__caption {
-  position: absolute;
-  bottom: 14%;
-  max-width: 460px;
-  opacity: 0;
-  will-change: opacity, transform;
-  transition: none; /* opacity/transform are driven per-frame by JS, not CSS */
-}
-
-.hero__caption:nth-child(odd) {
-  left: 6%;
-  text-align: left;
-}
-
-.hero__caption:nth-child(even) {
-  right: 6%;
-  text-align: right;
-}
-
-.hero__caption:nth-child(even) .hero__caption-subtitle {
-  margin-left: auto;
-}
-
-.hero__caption-eyebrow {
-  display: block;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: #e63946;
-  margin-bottom: 14px;
-}
-
-.hero__caption-title {
-  font-family: "Bodoni Moda", "Playfair Display", Georgia, serif;
-  font-size: clamp(28px, 3.6vw, 46px);
-  line-height: 1.15;
-  color: #f2ede0;
-  margin: 0 0 14px;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
-}
-
-.hero__caption-subtitle {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: clamp(14px, 1.4vw, 16px);
-  line-height: 1.6;
-  color: #cfcfcf;
-  margin: 0;
-  max-width: 420px;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-}
-
 @media (max-width: 768px) {
-  /* Alternating sides only makes sense with room to spare either side
-     of the model; on narrow screens every caption collapses back to
-     one centered column so it never overlaps the canvas content. */
+  .hero__name-text {
+    font-size: clamp(32px, 9vw, 80px);
+  }
+
   .hero__caption {
     left: 5% !important;
     right: 5% !important;
@@ -320,10 +288,213 @@ body {
     margin-left: auto;
     margin-right: auto;
   }
+
+  .hero__caption-title {
+    font-size: clamp(24px, 5vw, 38px);
+  }
+
+  .hero__scroll-hint {
+    bottom: 20px;
+    font-size: 9px;
+  }
+
+  .hero__scroll-hint-line {
+    height: 20px;
+  }
 }
 
+/* ------------------------------------------------------------------
+   Mobile/640px and down (small screens)
+   ------------------------------------------------------------------ */
+@media (max-width: 640px) {
+  .hero {
+    height: 100vh;
+  }
+
+  .hero__name-text {
+    font-size: clamp(28px, 8vw, 50px);
+    letter-spacing: 0.02em;
+  }
+
+  .hero__caption {
+    left: 4% !important;
+    right: 4% !important;
+    bottom: 22%;
+    max-width: none;
+    text-align: center !important;
+  }
+
+  .hero__caption-eyebrow {
+    font-size: clamp(10px, 1.1vw, 11px);
+    margin-bottom: 10px;
+  }
+
+  .hero__caption-title {
+    font-size: clamp(20px, 5.5vw, 32px);
+    margin-bottom: 10px;
+  }
+
+  .hero__caption-subtitle {
+    font-size: clamp(12px, 1.2vw, 14px);
+    line-height: 1.5;
+  }
+
+  .hero__scroll-hint {
+    bottom: 16px;
+    gap: 6px;
+    font-size: 8px;
+  }
+
+  .hero__scroll-hint-line {
+    height: 16px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Small mobile/480px and down
+   ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+  .hero {
+    min-height: 100vh;
+  }
+
+  .hero__name-text {
+    font-size: clamp(24px, 7vw, 42px);
+  }
+
+  .hero__caption {
+    left: 3% !important;
+    right: 3% !important;
+    bottom: 24%;
+  }
+
+  .hero__caption-title {
+    font-size: clamp(18px, 5vw, 28px);
+  }
+
+  .hero__scroll-hint {
+    bottom: 14px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Reduced motion preferences
+   ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   .hero__caption {
     transition: opacity 0.3s ease;
+  }
+
+  .hero__scroll-hint-line {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .hero__name {
+    transition: opacity 0.3s ease;
+  }
+}
+
+/* ------------------------------------------------------------------
+   High DPI devices (retina displays)
+   ------------------------------------------------------------------ */
+@media (min-resolution: 2dppx) {
+  .site-bg-video {
+    image-rendering: auto;
+  }
+
+  .hero__caption-title,
+  .hero__name-text {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Landscape mode adjustments
+   ------------------------------------------------------------------ */
+@media (orientation: landscape) and (max-height: 600px) {
+  .hero {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .hero__scroll-hint {
+    display: none;
+  }
+
+  .hero__caption {
+    bottom: 10%;
+    max-width: 35%;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Landscape mobile specific
+   ------------------------------------------------------------------ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hero__name-text {
+    font-size: clamp(24px, 6vw, 48px);
+  }
+
+  .hero__caption-title {
+    font-size: clamp(16px, 3vw, 24px);
+    line-height: 1.1;
+  }
+
+  .hero__caption {
+    bottom: 15%;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Dark mode / prefers-color-scheme
+   ------------------------------------------------------------------ */
+@media (prefers-color-scheme: dark) {
+  .hero__name-text {
+    color: rgba(242, 237, 224, 0.95);
+  }
+
+  .site-bg {
+    background: #000000;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .site-bg {
+    background: #1a1a1a;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Accessibility: Focus visible for keyboard navigation
+   ------------------------------------------------------------------ */
+.hero__caption:focus-visible {
+  outline: 2px solid #b21f2d;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------
+   Print styles (if hero is printed)
+   ------------------------------------------------------------------ */
+@media print {
+  .hero {
+    page-break-after: avoid;
+    height: auto;
+  }
+
+  .hero__scroll-hint,
+  .site-bg {
+    display: none;
+  }
+
+  .hero__canvas-wrap {
+    position: static;
+  }
+
+  .hero__name-text {
+    font-size: 48px;
+    text-shadow: none;
   }
 }
