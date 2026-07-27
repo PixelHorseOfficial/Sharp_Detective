@@ -36,8 +36,6 @@ export default function About() {
       });
 
       // Staggered reveal for the text column as it scrolls into view.
-      // Using fromTo + autoAlpha instead of "from" so the start state is
-      // explicit and always resolves correctly even if layout shifts.
       gsap.fromTo(
         [eyebrowRef.current, titleRef.current, copyRef.current, quoteRef.current],
         { autoAlpha: 0, y: 24 },
@@ -72,7 +70,11 @@ export default function About() {
         },
       });
 
-      // Scroll-linked parallax + settle
+      // Card stays perfectly flat at all times — no rotateX/rotateY,
+      // so there's no perspective keystoning/trapezoid warp. Only
+      // scale, y, and opacity are animated below.
+
+      // Scroll-linked parallax + settle.
       gsap.to(browser, {
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -85,7 +87,9 @@ export default function About() {
         opacity: 0.75,
       });
 
-      // Mouse movement 3D tilt — desktop only
+      // Mouse movement — desktop only. Purely a subtle scale
+      // "breathe" on hover, no rotation, so the card can never
+      // trapezoid/keystone from the mouse either.
       const handleMouseMove = (e) => {
         const rect = browser.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -94,14 +98,8 @@ export default function About() {
         const mouseX = (e.clientX - centerX) / rect.width;
         const mouseY = (e.clientY - centerY) / rect.height;
 
-        const rotateX = mouseY * 6;
-        const rotateY = mouseX * -6;
-        const scale = 1 + Math.abs(mouseX) * 0.01 + Math.abs(mouseY) * 0.01;
-
         gsap.to(browser, {
-          rotateX,
-          rotateY,
-          scale,
+          scale: 1 + Math.abs(mouseX) * 0.01 + Math.abs(mouseY) * 0.01,
           duration: 1,
           ease: "power2.out",
         });
@@ -109,8 +107,6 @@ export default function About() {
 
       const handleMouseLeave = () => {
         gsap.to(browser, {
-          rotateX: 0,
-          rotateY: 0,
           scale: 1,
           duration: 1.2,
           ease: "power2.out",
